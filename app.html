@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>点名系统</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background-color: black;
+  color: white;
+}
+form {
+  margin: 20px auto;
+  width: 200px;
+}
+form input {
+  width: 100%;
+  margin-bottom: 10px;
+}
+#nameList {
+  list-style-type: none;
+  padding: 0;
+}
+#errorMsg {
+  color: lightblue;
+  display: none;
+}
+#registerForm {
+  padding: 20px;
+  border-radius: 10px;
+}
+#registerForm input {
+  color: black;
+}
+</style>
+</head>
+<body>
+<h1>探月点名系统</h1>
+<div id="registerForm" style="display: none;">
+  <h2>注册</h2>
+  <form id="register">
+    <input type="text" id="newUsername" placeholder="用户名">
+    <input type="password" id="newPassword" placeholder="密码">
+    <button type="submit">注册</button>
+  </form>
+</div>
+<div id="loginForm">
+  <h2>登录您的账号</h2>
+  <form id="login">
+    <input type="text" id="username" placeholder="用户名">
+    <input type="password" id="password" placeholder="密码">
+    <button type="submit">登录</button>
+  </form>
+  <p id="errorMsg">用户名或密码错误</p>
+  <p>没有注册过的账户？点击这里<a href="#" id="showRegisterForm">注册</a></p>
+</div>
+<div id="rollCallSection" style="display:none;">
+  <p>点击按钮进行点名：</p>
+  <ul id="nameList"></ul>
+  <button onclick="rollCall()">点名</button>
+  <button onclick="logout()">退出登录</button>
+</div>
+
+<script>
+let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+let currentUser = null;
+
+const correctUsername = "admin";
+const correctPassword = "password";
+
+function rollCall() {
+  const students = [
+    "段啸俣",
+    "王子元",
+    "付子豪",
+    "赵胤轩",
+    "张恩琪",
+    "高涵",
+    "曾奕洲",
+    "王子浩然"
+  ];
+  const randomIndex = Math.floor(Math.random() * students.length);
+  const selectedStudent = students[randomIndex];
+  const nameList = document.getElementById('nameList');
+  const listItem = document.createElement('li');
+  listItem.textContent = selectedStudent;
+  nameList.innerHTML = '';
+  nameList.appendChild(listItem);
+}
+
+document.getElementById('login').addEventListener('submit', function(event) {
+  event.preventDefault();
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+  const user = registeredUsers.find(user => user.username === username && user.password === password);
+  if (user) {
+    currentUser = user;
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('registerForm').style.display = 'none';
+    document.getElementById('rollCallSection').style.display = 'block';
+    document.getElementById('errorMsg').style.display = 'none';
+    clearInputFields();
+  } else {
+    document.getElementById('errorMsg').style.display = 'block';
+  }
+});
+
+document.getElementById('register').addEventListener('submit', function(event) {
+  event.preventDefault();
+  const newUsername = document.getElementById('newUsername').value;
+  const newPassword = document.getElementById('newPassword').value;
+  if (newUsername && newPassword) {
+    registeredUsers.push({ username: newUsername, password: newPassword });
+    localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+    alert('注册成功！请使用新账户登录。');
+    document.getElementById('registerForm').style.display = 'none';
+    document.getElementById('loginForm').style.display = 'block';
+    clearInputFields();
+  } else {
+    alert('请输入用户名和密码');
+  }
+});
+
+document.getElementById('showRegisterForm').addEventListener('click', function(event) {
+  event.preventDefault();
+  document.getElementById('loginForm').style.display = 'none';
+  document.getElementById('registerForm').style.display = 'block';
+  clearInputFields();
+});
+
+function clearInputFields() {
+  document.getElementById('username').value = '';
+  document.getElementById('password').value = '';
+  document.getElementById('newUsername').value = '';
+  document.getElementById('newPassword').value = '';
+}
+
+function logout() {
+  currentUser = null;
+  document.getElementById('loginForm').style.display = 'block';
+  document.getElementById('rollCallSection').style.display = 'none';
+}
+</script>
+</body>
+</html>
